@@ -26,6 +26,12 @@ export default function handler(
         } else{
             res.status(400).json({message : 'Error! Data is not Valid'})
         }
+    } else if(req.method === 'PUT'){
+        const body : CategoryData = req.body
+        if(body.id == null){
+            res.status(400).json({message : 'Error! Edit must include id'})
+        }
+        res.status(200).json({message : 'Edit Category Success'})
     }
 }
 
