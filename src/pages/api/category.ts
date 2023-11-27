@@ -26,7 +26,16 @@ export default async function handler(
     } else if(req.method === 'POST'){
         const body : CategoryData = req.body
         if(isCategoryValid(body)){
-            res.status(201).json({message : 'Insert Category Success'})
+            const created_by = "Admin";
+            const created_on = Date.now();
+
+            const query = `INSERT INTO category(initial, name, active, created_by, created_on)
+                VALUES ('${body.initial}', '${body.name}', ${body.active}, '${created_by}', (to_timestamp(${created_on} / 1000.0))) returning id`;
+            const result = await pool.query(
+                    query
+            );
+
+            res.status(201).json({message : `Insert Category Success dengan id : ${result.rows[0].id}`})
         } else{
             res.status(400).json({message : 'Error! Data is not Valid'})
         }
