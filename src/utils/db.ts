@@ -6,7 +6,7 @@ const pool = new Pool({
   host: process.env.PGSQL_HOST,
   database: process.env.PGSQL_DATABASE,
   password: process.env.PGSQL_PASSWORD,
-  port: 5432
+  port: +process.env.PGSQL_PORT!!
 });
 
 export default pool;

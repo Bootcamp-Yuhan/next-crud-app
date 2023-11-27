@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { categoryData } from '../../../data'
-import { json } from 'stream/consumers'
+import pool from '@/utils/db'
 
 export type CategoryData = {
     id: number
@@ -13,12 +13,16 @@ export type CategoryData = {
     modified_on: number | null
 }
 
-export default function handler(
+export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
     if(req.method === 'GET'){
-        res.status(200).json(categoryData)
+        const query = 'SELECT * FROM category';
+        const result = await pool.query(
+            query
+        );
+        res.status(200).json(result.rows)
     } else if(req.method === 'POST'){
         const body : CategoryData = req.body
         if(isCategoryValid(body)){
