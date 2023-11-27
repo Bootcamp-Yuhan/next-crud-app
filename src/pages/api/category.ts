@@ -32,6 +32,12 @@ export default function handler(
             res.status(400).json({message : 'Error! Edit must include id'})
         }
         res.status(200).json({message : 'Edit Category Success'})
+    } else if(req.method === 'DELETE'){
+        const body : CategoryData = req.body
+        if(body.id == null){
+            res.status(400).json({message : 'Error! Delete must include id'})
+        }
+        res.status(204).json({message : 'Delete Category Success'})
     }
 }
 
