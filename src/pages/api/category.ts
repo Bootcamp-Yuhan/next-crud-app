@@ -72,8 +72,24 @@ export default async function handler(
         const body : CategoryData = req.body
         if(body.id == null){
             res.status(400).json({message : 'Error! Delete must include id'})
+        } else{
+             //latest data
+             const query1 = `SELECT * FROM category WHERE id = ${body.id}`;
+             const result1 = await pool.query(
+                 query1
+             );
+             if(result1.rows.length > 0){
+                 const query2 = `DELETE from category
+                                 WHERE id = ${body.id} returning id`;
+                 const result2 = await pool.query(
+                     query2
+                 );
+                 res.status(204).json({message : `Delete Category Success id ${result2.rows[0].id}`})
+             } else {
+                 res.status(400).json({message : `Error! category with id = ${body.id} not found`})
+             }
         }
-        res.status(204).json({message : 'Delete Category Success'})
+        
     }
 }
 
