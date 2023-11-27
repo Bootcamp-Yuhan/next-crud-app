@@ -26,7 +26,7 @@ export default async function handler(
     } else if(req.method === 'POST'){
         const body : CategoryData = req.body
         if(isCategoryValid(body)){
-            const created_by = "Admin";
+            const created_by = "Admin Insert";
             const created_on = Date.now();
 
             const query = `INSERT INTO category(initial, name, active, created_by, created_on)
@@ -43,8 +43,31 @@ export default async function handler(
         const body : CategoryData = req.body
         if(body.id == null){
             res.status(400).json({message : 'Error! Edit must include id'})
+        } else {
+            //latest data
+            const query1 = `SELECT * FROM category WHERE id = ${body.id}`;
+            const result1 = await pool.query(
+                query1
+            );
+            if(result1.rows.length > 0){
+                const latestData : CategoryData = result1.rows[0];
+                const name = body.name != null ? body.name : latestData.name;
+                const initial = body.initial != null ? body.initial : latestData.initial;
+                const active = body.active != null ? body.active : latestData.active;
+                const modified_by = "Admin Modify";
+                const modified_on = Date.now();
+
+                const query2 = `UPDATE category
+	                            SET initial='${initial}', name='${name}', active='${active}', modified_by='${modified_by}', modified_on=(to_timestamp(${modified_on} / 1000.0))
+	                            WHERE id = ${body.id} returning id`;
+                const result2 = await pool.query(
+                    query2
+                );
+                res.status(200).json({message : `Edit Category Success id ${result2.rows[0].id}`})
+            } else {
+                res.status(400).json({message : `Error! category with id = ${body.id} not found`})
+            }
         }
-        res.status(200).json({message : 'Edit Category Success'})
     } else if(req.method === 'DELETE'){
         const body : CategoryData = req.body
         if(body.id == null){
