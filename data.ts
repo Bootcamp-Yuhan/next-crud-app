@@ -1,4 +1,6 @@
-export const categoryData = [
+import { CategoryData } from "@/pages/api/category";
+
+export const categoryData : CategoryData[] = [
     {
       "id": 1,
       "initial": "ABC",
