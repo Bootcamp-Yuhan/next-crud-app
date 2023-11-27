@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { categoryData } from '../../../data'
+import { json } from 'stream/consumers'
 
 export type CategoryData = {
     id: number
@@ -18,6 +19,19 @@ export default function handler(
 ) {
     if(req.method === 'GET'){
         res.status(200).json(categoryData)
+    } else if(req.method === 'POST'){
+        const body : CategoryData = req.body
+        if(isCategoryValid(body)){
+            res.status(201).json({message : 'Insert Category Success'})
+        } else{
+            res.status(400).json({message : 'Error! Data is not Valid'})
+        }
     }
-    
+}
+
+function isCategoryValid(body : CategoryData){
+    if(body.name == null || body.initial == null || body.active == null){
+        return false
+    }
+    return true
 }
