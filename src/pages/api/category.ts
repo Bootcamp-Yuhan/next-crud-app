@@ -18,15 +18,29 @@ export default async function handler(
     res: NextApiResponse
 ) {
     if (req.method === 'GET') {
-        const { keyword } = req.query;
+        const { keyword, page, pageSize } = req.query;
+        const mPageSize = pageSize ? pageSize : 5
+        const offset = page ? (parseInt(page.toString(), 10) - 1) * parseInt(mPageSize.toString(), 10) : 1;
 
         let query = 'SELECT * FROM category';
-        if(keyword){
-            query += ` WHERE initial ILIKE '%${keyword}%' OR name ILIKE '%${keyword}%'`; 
+        let countQuery = 'SELECT COUNT(*) AS total FROM category';
+
+        if (keyword) {
+            query += ` WHERE initial ILIKE '%${keyword}%' OR name ILIKE '%${keyword}%'`;
+            countQuery += ` WHERE initial ILIKE '%${keyword}%' OR name ILIKE '%${keyword}%'`;
         }
-        
+
+        // Add pagination
+        if (page) {
+            query += ` OFFSET ${offset} LIMIT ${mPageSize}`;
+        }
+
         const result = await pool.query(query);
-        res.status(200).json(result.rows)
+        const countResult = await pool.query(countQuery);
+        const totalItems = parseInt(countResult.rows[0].total, 10);
+        const totalPages = Math.ceil(totalItems / parseInt(mPageSize.toString(), 10));
+    
+        res.status(200).json({ data: result.rows, totalPages });
     } else if (req.method === 'POST') {
         const body: CategoryData = req.body;
         let errorMessage: string[] = isCategoryValid(body);
@@ -74,23 +88,23 @@ export default async function handler(
                 const errorMessage: string[] = isCategoryEditValid(body);
                 if (errorMessage.length == 0) {
                     const latestData: CategoryData = result1.rows[0];
-                    const isInitialUnique = await isEditInitialIsExists(body,latestData)
+                    const isInitialUnique = await isEditInitialIsExists(body, latestData)
                     if (isInitialUnique.rows[0].exists == true) {
                         errorMessage.push("Initial already exists")
                     }
 
-                    const isNameUnique = await isEditNameIsExists(body,latestData)
+                    const isNameUnique = await isEditNameIsExists(body, latestData)
                     if (isNameUnique.rows[0].exists == true) {
                         errorMessage.push("Name already exists")
                     }
 
-                    if(errorMessage.length == 0){
+                    if (errorMessage.length == 0) {
                         const name = body.name != null ? body.name : latestData.name;
                         const initial = body.initial != null ? body.initial : latestData.initial;
                         const active = body.active != null ? body.active : latestData.active;
                         const modified_by = "Admin Modify";
                         const modified_on = Date.now();
-    
+
                         const query2 = `UPDATE category
                                     SET initial='${initial}', name='${name}', active='${active}', modified_by='${modified_by}', modified_on=(to_timestamp(${modified_on} / 1000.0))
                                     WHERE id = ${body.id} returning id`;
@@ -102,7 +116,7 @@ export default async function handler(
                         res.status(400).json({ message: errorMessage.join(', ') })
                     }
 
-                   
+
                 } else {
                     res.status(400).json({ message: errorMessage.join(', ') })
                 }
