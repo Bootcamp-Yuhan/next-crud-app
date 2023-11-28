@@ -12,42 +12,47 @@ import DeleteCategoryModal from "@/components/delete-category-modal";
 
 interface CategoryPageProps {
     data: CategoryData[];
+    totalPages : number;
 }
 
-export async function getServerSideProps({query} : any): Promise<{ props: CategoryPageProps }> {
+export async function getServerSideProps({ query }: any): Promise<{ props: CategoryPageProps }> {
     const searchQuery = query.keyword || '';
+    const pageQuery = query.page || '1';
 
-    const response = await fetch(`http://localhost:3000/api/category?keyword=${encodeURIComponent(searchQuery)}`);
-    const data: CategoryData[] = await response.json();
-    return { props: { data } };
+    const response = await fetch(`http://localhost:3000/api/category?keyword=${encodeURIComponent(searchQuery)}&page=${encodeURIComponent(pageQuery)}`);
+    const json = await response.json()
+    const data: CategoryData[] = json.data
+    const totalPages: number = json.totalPages
+    return { props: { data, totalPages } };
 }
 
-export default function CategoryPage({ data }: CategoryPageProps) {
+export default function CategoryPage({ data, totalPages }: CategoryPageProps) {
     // Your data and logic go here
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editData, setEditData] = useState<CategoryData>({
-        id : -1,
-        initial : '',
-        name : '',
-        active : false,
-        created_by : '',
-        created_on : 0,
-        modified_by : null,
-        modified_on : null
+        id: -1,
+        initial: '',
+        name: '',
+        active: false,
+        created_by: '',
+        created_on: 0,
+        modified_by: null,
+        modified_on: null
     });
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteData, setDeleteData] = useState<CategoryData>({
-        id : -1,
-        initial : '',
-        name : '',
-        active : false,
-        created_by : '',
-        created_on : 0,
-        modified_by : null,
-        modified_on : null
+        id: -1,
+        initial: '',
+        name: '',
+        active: false,
+        created_by: '',
+        created_on: 0,
+        modified_by: null,
+        modified_on: null
     });
     const router = useRouter();
+    const [currentPage, setCurrentPage] = useState(1);
 
     async function handleCreateCategory(formData: FormDataProps) {
         // Handle category creation logic here
@@ -55,7 +60,7 @@ export default function CategoryPage({ data }: CategoryPageProps) {
         router.replace(router.asPath);
     };
 
-    
+
     async function handleEditCategory(formData: FormDataProps) {
         // Handle category creation logic here
         console.log('Form Data:', formData);
@@ -68,11 +73,11 @@ export default function CategoryPage({ data }: CategoryPageProps) {
         router.replace(router.asPath);
     };
 
-   
+
     const handleAddClick = () => {
         setShowAddModal(true)
     };
-   
+
     const handleEditClick = (id: number) => {
         const filterEdit = data.filter(cData => cData.id == id)
         console.log(filterEdit)
@@ -90,11 +95,25 @@ export default function CategoryPage({ data }: CategoryPageProps) {
 
     const handleSearch = (query: string) => {
         console.log(query)
-        router.push(`/pos/category?keyword=${encodeURIComponent(query)}`);
+        if(router.query.page == undefined){
+            router.push(`/pos/category?keyword=${encodeURIComponent(query)}`);
+        } else {
+            router.push(`/pos/category?keyword=${encodeURIComponent(query)}&page=${router.query.page}`);
+        }
+        
     };
 
     const handlePageChange = (pageNumber: number) => {
-        // Implement pagination logic
+        // Update the current page when the user clicks on a different page
+        setCurrentPage(pageNumber);
+
+        // Update the URL with the new page number
+        if(router.query.keyword == undefined){
+            router.push(`/pos/category?page=${pageNumber}`);
+        } else {
+            router.push(`/pos/category?keyword=${router.query.keyword}&page=${pageNumber}`);
+        }
+        
     };
 
     return (
@@ -106,7 +125,10 @@ export default function CategoryPage({ data }: CategoryPageProps) {
             </div>
 
             <Table data={data} onEditClick={({ id }) => handleEditClick(id)} onDeleteClick={({ id }) => handleDeleteClick(id)} />
-            <Pagination onPageChange={handlePageChange} />
+            <Pagination 
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={handlePageChange} />
 
             <AddCategoryModal
                 showModal={showAddModal}
