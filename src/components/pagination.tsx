@@ -1,27 +1,30 @@
-// components/Pagination.tsx
 import React from 'react';
 
-const Pagination: React.FC<{ onPageChange: (pageNumber: number) => void }> = ({ onPageChange }) => {
+interface PaginationProps {
+  totalPages: number;
+  currentPage: number;
+  onPageChange: (pageNumber: number) => void;
+}
+
+const Pagination: React.FC<PaginationProps> = ({ totalPages, currentPage, onPageChange }) => {
+  const generatePageNumbers = () => {
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+      pageNumbers.push(
+        <li key={i} className={`page-item ${currentPage === i ? 'active' : ''}`}>
+          <a className="page-link" href="#" onClick={() => onPageChange(i)}>
+            {i}
+          </a>
+        </li>
+      );
+    }
+    return pageNumbers;
+  };
+
   return (
     <nav>
       <ul className="pagination">
-        {/* Implement pagination logic here */}
-        {/* For simplicity, I'll provide a basic example with three pages */}
-        <li className="page-item">
-          <a className="page-link" href="#" onClick={() => onPageChange(1)}>
-            1
-          </a>
-        </li>
-        <li className="page-item">
-          <a className="page-link" href="#" onClick={() => onPageChange(2)}>
-            2
-          </a>
-        </li>
-        <li className="page-item">
-          <a className="page-link" href="#" onClick={() => onPageChange(3)}>
-            3
-          </a>
-        </li>
+        {generatePageNumbers()}
       </ul>
     </nav>
   );
