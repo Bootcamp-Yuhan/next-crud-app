@@ -4,31 +4,50 @@ import Pagination from "@/components/pagination";
 import SearchBar from "@/components/searchbar";
 import { CategoryData } from "../api/category/[catId]";
 import { categoryData } from "../../../data";
+import { useState } from "react";
+import AddCategoryModal, { FormDataProps } from "@/components/add-category-modal";
+import { useRouter } from 'next/router';
 
-const CategoryPage: React.FC = () => {
+interface CategoryPageProps {
+    data: CategoryData[];
+}
+
+export async function getServerSideProps(): Promise<{ props: CategoryPageProps }> {
+    const response = await fetch("http://localhost:3000/api/category");
+    const data: CategoryData[] = await response.json();
+    return { props: { data } };
+}
+
+export default function CategoryPage({ data }: CategoryPageProps) {
     // Your data and logic go here
+    const [showModal, setShowModal] = useState(false);
+    const router = useRouter();
+
+    async function handleCreateCategory(formData: FormDataProps) {
+        // Handle category creation logic here
+        console.log('Form Data:', formData);
+        router.replace(router.asPath);
+    };
 
     const handleSearch = (query: string) => {
         // Implement search logic
     };
 
     const handleAddClick = () => {
-        // Implement button click logic
+        setShowModal(true)
     };
 
     const handlePageChange = (pageNumber: number) => {
         // Implement pagination logic
     };
 
-    const handleEditClick = (id : number) => {
+    const handleEditClick = (id: number) => {
         // Implement pagination logic
     };
 
     const handleDeleteClick = (id: number) => {
         // Implement pagination logic
     };
-
-    const data: CategoryData[] = categoryData
 
     return (
         <div className="container p-5 mt-5">
@@ -38,10 +57,14 @@ const CategoryPage: React.FC = () => {
                 <div className="col-2 text-end"><Button onClick={handleAddClick} label="Add Category" /></div>
             </div>
 
-            <Table data={data} onEditClick={({id}) => handleEditClick(id)} onDeleteClick={({id}) => handleDeleteClick(id)} />
+            <Table data={data} onEditClick={({ id }) => handleEditClick(id)} onDeleteClick={({ id }) => handleDeleteClick(id)} />
             <Pagination onPageChange={handlePageChange} />
+
+            <AddCategoryModal
+                showModal={showModal}
+                handleClose={() => setShowModal(false)}
+                handleCreate={handleCreateCategory}
+            />
         </div>
     );
 };
-
-export default CategoryPage;
