@@ -83,6 +83,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ showModal, formDa
                                     name="initial"
                                     value={formData.initial}
                                     onChange={handleChange}
+                                    maxLength={10}
                                 />
                             </div>
                             <div className="mb-3">
@@ -96,6 +97,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ showModal, formDa
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
+                                    maxLength={50}
                                 />
                             </div>
                             <div className="form-check mb-3">

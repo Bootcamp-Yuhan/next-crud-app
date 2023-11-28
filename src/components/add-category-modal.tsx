@@ -79,6 +79,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ showModal, handleCl
                                     name="initial"
                                     value={formData.initial}
                                     onChange={handleChange}
+                                    maxLength={10}
                                 />
                             </div>
                             <div className="mb-3">
@@ -92,6 +93,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ showModal, handleCl
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
+                                    maxLength={50}
                                 />
                             </div>
                             <div className="form-check mb-3">
