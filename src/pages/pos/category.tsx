@@ -8,6 +8,7 @@ import { useState } from "react";
 import AddCategoryModal, { FormDataProps } from "@/components/add-category-modal";
 import { useRouter } from 'next/router';
 import EditCategoryModal from "@/components/edit-category-modal";
+import DeleteCategoryModal from "@/components/delete-category-modal";
 
 interface CategoryPageProps {
     data: CategoryData[];
@@ -33,6 +34,17 @@ export default function CategoryPage({ data }: CategoryPageProps) {
         modified_by : null,
         modified_on : null
     });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteData, setDeleteData] = useState<CategoryData>({
+        id : -1,
+        initial : '',
+        name : '',
+        active : false,
+        created_by : '',
+        created_on : 0,
+        modified_by : null,
+        modified_on : null
+    });
     const router = useRouter();
 
     async function handleCreateCategory(formData: FormDataProps) {
@@ -43,6 +55,12 @@ export default function CategoryPage({ data }: CategoryPageProps) {
 
     
     async function handleEditCategory(formData: FormDataProps) {
+        // Handle category creation logic here
+        console.log('Form Data:', formData);
+        router.replace(router.asPath);
+    };
+
+    async function handleDeleteCategory(formData: FormDataProps) {
         // Handle category creation logic here
         console.log('Form Data:', formData);
         router.replace(router.asPath);
@@ -62,7 +80,10 @@ export default function CategoryPage({ data }: CategoryPageProps) {
     };
 
     const handleDeleteClick = (id: number) => {
-        // Implement pagination logic
+        const filterDelete = data.filter(cData => cData.id == id)
+        console.log(filterDelete)
+        setDeleteData(filterDelete[0])
+        setShowDeleteModal(true)
     };
 
     const handleSearch = (query: string) => {
@@ -94,6 +115,12 @@ export default function CategoryPage({ data }: CategoryPageProps) {
                 formDataProps={editData}
                 handleClose={() => setShowEditModal(false)}
                 handleEdit={handleEditCategory}
+            />
+            <DeleteCategoryModal
+                showModal={showDeleteModal}
+                categoryData={deleteData}
+                handleClose={() => setShowDeleteModal(false)}
+                handleDelete={handleDeleteCategory}
             />
         </div>
     );
