@@ -1,4 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import bootstrap CSS
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
 import { useEffect } from "react";
