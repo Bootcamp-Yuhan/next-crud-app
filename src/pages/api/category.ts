@@ -18,10 +18,14 @@ export default async function handler(
     res: NextApiResponse
 ) {
     if (req.method === 'GET') {
-        const query = 'SELECT * FROM category';
-        const result = await pool.query(
-            query
-        );
+        const { keyword } = req.query;
+
+        let query = 'SELECT * FROM category';
+        if(keyword){
+            query += ` WHERE initial ILIKE '%${keyword}%' OR name ILIKE '%${keyword}%'`; 
+        }
+        
+        const result = await pool.query(query);
         res.status(200).json(result.rows)
     } else if (req.method === 'POST') {
         const body: CategoryData = req.body;
