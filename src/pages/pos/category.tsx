@@ -14,8 +14,10 @@ interface CategoryPageProps {
     data: CategoryData[];
 }
 
-export async function getServerSideProps(): Promise<{ props: CategoryPageProps }> {
-    const response = await fetch("http://localhost:3000/api/category");
+export async function getServerSideProps({query} : any): Promise<{ props: CategoryPageProps }> {
+    const searchQuery = query.keyword || '';
+
+    const response = await fetch(`http://localhost:3000/api/category?keyword=${encodeURIComponent(searchQuery)}`);
     const data: CategoryData[] = await response.json();
     return { props: { data } };
 }
@@ -87,7 +89,8 @@ export default function CategoryPage({ data }: CategoryPageProps) {
     };
 
     const handleSearch = (query: string) => {
-        // Implement search logic
+        console.log(query)
+        router.push(`/pos/category?keyword=${encodeURIComponent(query)}`);
     };
 
     const handlePageChange = (pageNumber: number) => {
