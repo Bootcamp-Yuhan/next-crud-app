@@ -7,6 +7,7 @@ import { categoryData } from "../../../data";
 import { useState } from "react";
 import AddCategoryModal, { FormDataProps } from "@/components/add-category-modal";
 import { useRouter } from 'next/router';
+import EditCategoryModal from "@/components/edit-category-modal";
 
 interface CategoryPageProps {
     data: CategoryData[];
@@ -20,7 +21,18 @@ export async function getServerSideProps(): Promise<{ props: CategoryPageProps }
 
 export default function CategoryPage({ data }: CategoryPageProps) {
     // Your data and logic go here
-    const [showModal, setShowModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editData, setEditData] = useState<CategoryData>({
+        id : -1,
+        initial : '',
+        name : '',
+        active : false,
+        created_by : '',
+        created_on : 0,
+        modified_by : null,
+        modified_on : null
+    });
     const router = useRouter();
 
     async function handleCreateCategory(formData: FormDataProps) {
@@ -29,23 +41,35 @@ export default function CategoryPage({ data }: CategoryPageProps) {
         router.replace(router.asPath);
     };
 
-    const handleSearch = (query: string) => {
-        // Implement search logic
+    
+    async function handleEditCategory(formData: FormDataProps) {
+        // Handle category creation logic here
+        console.log('Form Data:', formData);
+        router.replace(router.asPath);
     };
 
+   
     const handleAddClick = () => {
-        setShowModal(true)
+        setShowAddModal(true)
     };
-
-    const handlePageChange = (pageNumber: number) => {
-        // Implement pagination logic
-    };
-
+   
     const handleEditClick = (id: number) => {
+        const filterEdit = data.filter(cData => cData.id == id)
+        console.log(filterEdit)
+        setEditData(filterEdit[0])
+        setShowEditModal(true)
         // Implement pagination logic
     };
 
     const handleDeleteClick = (id: number) => {
+        // Implement pagination logic
+    };
+
+    const handleSearch = (query: string) => {
+        // Implement search logic
+    };
+
+    const handlePageChange = (pageNumber: number) => {
         // Implement pagination logic
     };
 
@@ -61,9 +85,15 @@ export default function CategoryPage({ data }: CategoryPageProps) {
             <Pagination onPageChange={handlePageChange} />
 
             <AddCategoryModal
-                showModal={showModal}
-                handleClose={() => setShowModal(false)}
+                showModal={showAddModal}
+                handleClose={() => setShowAddModal(false)}
                 handleCreate={handleCreateCategory}
+            />
+            <EditCategoryModal
+                showModal={showEditModal}
+                formDataProps={editData}
+                handleClose={() => setShowEditModal(false)}
+                handleEdit={handleEditCategory}
             />
         </div>
     );
