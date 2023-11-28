@@ -18,6 +18,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ showModal, handleCl
         name: '',
         active: false,
     });
+    const [error, setError] = useState<string | null>(null)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -30,6 +31,7 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ showModal, handleCl
 
     async function handleFormSubmit(e: React.FormEvent) {
         e.preventDefault();
+        setError(null) // Clear previous errors when a new request starts
 
         const response = await fetch('http://localhost:3000/api/category', {
             method: 'POST',
@@ -48,7 +50,9 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ showModal, handleCl
                 active: false,
             })
         } else {
-            alert(response)
+            const data = await response.json()
+            const message = data.message
+            setError(message);
         }
 
 
@@ -102,6 +106,9 @@ const AddCategoryModal: React.FC<AddCategoryModalProps> = ({ showModal, handleCl
                                 <label className="form-check-label" htmlFor="active">
                                     Active
                                 </label>
+                            </div>
+                            <div className='mb-3'>
+                            {error && <div style={{ color: 'red' }}>{error}</div>}
                             </div>
                             <button type="button" className="btn btn-secondary" onClick={handleClose}>
                                 Cancel

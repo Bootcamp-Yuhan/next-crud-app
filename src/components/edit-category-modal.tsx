@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 interface EditCategoryModalProps {
     showModal: boolean;
-    formDataProps : FormDataProps
+    formDataProps: FormDataProps
     handleClose: () => void;
     handleEdit: (formData: FormDataProps) => void;
 }
@@ -16,11 +16,12 @@ export interface FormDataProps {
 
 const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ showModal, formDataProps, handleClose, handleEdit: handleCreate }) => {
     const [formData, setFormData] = useState<FormDataProps>(formDataProps);
+    const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
         // Update the form data when the categoryData prop changes
         setFormData(formDataProps);
-      }, [formDataProps]);
+    }, [formDataProps]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -33,6 +34,7 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ showModal, formDa
 
     async function handleFormSubmit(e: React.FormEvent) {
         e.preventDefault();
+        setError(null) // Clear previous errors when a new request starts
 
         const response = await fetch('http://localhost:3000/api/category', {
             method: 'PUT',
@@ -52,7 +54,9 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ showModal, formDa
                 active: false,
             })
         } else {
-            alert(response)
+            const data = await response.json()
+            const message = data.message
+            setError(message);
         }
 
 
@@ -106,6 +110,9 @@ const EditCategoryModal: React.FC<EditCategoryModalProps> = ({ showModal, formDa
                                 <label className="form-check-label" htmlFor="active">
                                     Active
                                 </label>
+                            </div>
+                            <div className='mb-3'>
+                            {error && <div style={{ color: 'red' }}>{error}</div>}
                             </div>
                             <button type="button" className="btn btn-secondary" onClick={handleClose}>
                                 Cancel
